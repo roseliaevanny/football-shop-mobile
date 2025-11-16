@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:football_shop/screens/menu.dart';
-// TODO: Impor halaman ProductFormPage jika sudah dibuat
+// Impor halaman ProductFormPage jika sudah dibuat
 import 'package:football_shop/screens/productslist_form.dart';
+import 'package:football_shop/screens/products_entry_list.dart';
 
 class LeftDrawer extends StatelessWidget {
   const LeftDrawer({super.key});
@@ -12,8 +13,8 @@ class LeftDrawer extends StatelessWidget {
       child: ListView(
         children: [
           const DrawerHeader(
-            // TODO: Bagian drawer header
-            decoration: BoxDecoration(color: Colors.blue),
+            // Bagian drawer header
+            decoration: BoxDecoration(color: Color(0xFF3b82f6)),
             child: Column(
               children: [
                 Text(
@@ -27,8 +28,8 @@ class LeftDrawer extends StatelessWidget {
                 ),
                 Padding(padding: EdgeInsets.all(10)),
                 Text(
-                  "Produk sepak bola lengkap di sini!",
-                  // TODO: Tambahkan gaya teks dengan center alignment, font ukuran 15, warna putih, dan weight biasa
+                  "Football products available here!",
+                  // Tambahkan gaya teks dengan center alignment, font ukuran 15, warna putih, dan weight biasa
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 15,
@@ -39,7 +40,7 @@ class LeftDrawer extends StatelessWidget {
               ],
             ),
           ),
-          // TODO: Bagian routing
+          // Bagian routing
           ListTile(
             leading: const Icon(Icons.home_outlined),
             title: const Text('Home'),
@@ -57,8 +58,8 @@ class LeftDrawer extends StatelessWidget {
             // Bagian redirection ke ProductFormPage
             onTap: () {
               /*
-              TODO: Buatlah routing ke ProductFormPage di sini,
-              setelah halaman NewsFormPage sudah dibuat.
+              Buatlah routing ke ProductFormPage di sini,
+              setelah halaman ProductFormPage sudah dibuat.
               */
               Navigator.push(
                 context,
@@ -66,6 +67,28 @@ class LeftDrawer extends StatelessWidget {
                   builder: (context) => const ProductsFormPage(),
                 ),
               );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_reaction_rounded),
+            title: const Text('Products List'),
+            onTap: () {
+                // Route to products list page
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProductsEntryListPage(mode: 'all')),
+                );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.add_reaction_rounded),
+            title: const Text('My Products'),
+            onTap: () {
+                // Route to products list page
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProductsEntryListPage(mode: 'my')),
+                );
             },
           ),
         ],

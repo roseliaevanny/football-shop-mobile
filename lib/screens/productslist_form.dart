@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-// TODO: Impor drawer yang sudah dibuat sebelumnya
+// Impor drawer yang sudah dibuat sebelumnya
 import 'package:football_shop/widgets/left_drawer.dart';
+import 'dart:convert';
+import 'package:provider/provider.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:football_shop/screens/menu.dart';
 
 class ProductsFormPage extends StatefulWidget {
   const ProductsFormPage({super.key});
@@ -29,13 +33,14 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Scaffold(
       appBar: AppBar(
         title: const Center(child: Text('Add Products Form')),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
-      // TODO: Tambahkan drawer yang sudah dibuat di sini
+      // Tambahkan drawer yang sudah dibuat di sini
       drawer: LeftDrawer(),
       body: Form(
         key: _formKey,
@@ -48,8 +53,8 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    hintText: "Nama Produk",
-                    labelText: "Nama Produk",
+                    hintText: "Product Name",
+                    labelText: "Product Name",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
@@ -61,7 +66,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Nama produk tidak boleh kosong!";
+                      return "Product name cannot be empty!";
                     }
                     return null;
                   },
@@ -74,8 +79,8 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                 child: TextFormField(
                   maxLines: 5,
                   decoration: InputDecoration(
-                    hintText: "Deskripsi Produk",
-                    labelText: "Deskripsi Produk",
+                    hintText: "Product Description",
+                    labelText: "Product Description",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
@@ -87,7 +92,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Deskripsi produk tidak boleh kosong!";
+                      return "Description cannot be empty!";
                     }
                     return null;
                   },
@@ -99,21 +104,21 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    labelText: "Harga",
-                    hintText: "Harga",
+                    labelText: "Price",
+                    hintText: "Price",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return 'Harga tidak boleh kosong!';
+                      return 'Price cannot be empty!';
                     }
                     final int? price = int.tryParse(value);
                     if (price == null) {
-                      return 'Harga harus berupa angka yang valid!';
+                      return 'Price must be a valid number!';
                     }
                     if (price <= 0) {
-                      return 'Harga tidak boleh negatif atau nol!';
+                      return 'Price cannot be negative or zero!';
                     }
                     return null;
                   },
@@ -130,7 +135,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                 padding: const EdgeInsets.all(5.0),
                 child: DropdownButtonFormField<String>(
                   decoration: InputDecoration(
-                    labelText: "Kategori",
+                    labelText: "Category",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5.0),
                     ),
@@ -170,7 +175,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                   },
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return "Thumbnail tidak boleh kosong!";
+                      return "Thumbnail cannot be empty!";
                     }
                     return null;
                   },
@@ -181,7 +186,7 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: SwitchListTile(
-                  title: const Text("Tandai sebagai Produk Unggulan"),
+                  title: const Text("Mark as Featured Product"),
                   value: _isFeatured,
                   onChanged: (bool value) {
                     setState(() {
@@ -196,21 +201,21 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: TextFormField(
                   decoration: InputDecoration(
-                    labelText: "Stok",
-                    hintText: "Stok",
+                    labelText: "Stock",
+                    hintText: "Stock",
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
                   validator: (String? value) {
                     if (value == null || value.isEmpty) {
-                      return 'Stok tidak boleh kosong!';
+                      return 'Stock cannot be empty!';
                     }
                     final int? price = int.tryParse(value);
                     if (price == null) {
-                      return 'Stok harus berupa angka yang valid!';
+                      return 'Stock must be a valid number!';
                     }
                     if (price <= 0) {
-                      return 'Stok tidak boleh negatif atau nol!';
+                      return 'Stock cannot be negative or zero!';
                     }
                     return null;
                   },
@@ -232,44 +237,46 @@ class _ProductsFormPageState extends State<ProductsFormPage> {
                         Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: const Text('Produk berhasil ditambahkan!'),
-                              content: SingleChildScrollView(
-                                child: Column(
-                                  crossAxisAlignment: 
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Nama produk: $_name'),
-                                    Text('Harga: $_price'),
-                                    Text('Deskripsi: $_description'),
-                                    Text('Kategori: $_category'),
-                                    Text('Thumbnail: $_thumbnail'),
-                                    Text('Unggulan: ${_isFeatured ? "Ya" : "Tidak"}'),
-                                    Text("Stok: $_stock"),
-                                  ],
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  child: const Text('OK'),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    _formKey.currentState!.reset();
-                                  },
-                                ),
-                              ],
-                            );
-                          },
+                        // Replace the URL with your app's URL
+                        // To connect Android emulator with Django on localhost, use URL http://10.0.2.2/
+                        // If you using chrome,  use URL http://localhost:8000
+                        
+                        final response = await request.postJson(
+                          "http://localhost:8000/create-flutter/",
+                          jsonEncode({
+                            "name": _name,
+                            "description": _description,
+                            "price": _price,
+                            "stock": _stock,
+                            "thumbnail": _thumbnail,
+                            "category": _category,
+                            "is_featured": _isFeatured,
+                          }),
                         );
+                        if (context.mounted) {
+                          if (response['status'] == 'success') {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("Products successfully added!"),
+                            ));
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyHomePage()),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("Something went wrong, please try again."),
+                            ));
+                          }
+                        }
                       }
                     },
                     child: const Text(
-                      "Simpan",
+                      "Save",
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
